@@ -1,8 +1,0 @@
-prefix=/home/nvidia/kinefly_catkin_ws/install
-
-Name: Kinefly
-Description: Description of Kinefly
-Version: 0.0.0
-Cflags: -I/home/nvidia/kinefly_catkin_ws/install/include
-Libs: -L/home/nvidia/kinefly_catkin_ws/install/lib 
-Requires: message_runtime
