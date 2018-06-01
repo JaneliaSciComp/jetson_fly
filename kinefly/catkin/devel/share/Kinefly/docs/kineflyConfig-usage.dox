@@ -1,0 +1,7 @@
+\subsubsection usage Usage
+\verbatim
+<node name="Kinefly" pkg="Kinefly" type="Kinefly">
+  <param name="use_gui" type="bool" value="True" />
+</node>
+\endverbatim
+
