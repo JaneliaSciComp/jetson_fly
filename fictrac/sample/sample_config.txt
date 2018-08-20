@@ -3,13 +3,13 @@ input_vid_fn        ./sample.avi
 load_template       0
 
 %% camera parameters %%
-do_config           0
+do_config           1
 fisheye             0
-#cam_input           0
+cam_input           1
 cam_index           0
 output_fn      ./output.csv
-transform_fn   ./sample-transform.dat
-mask_fn        ./sample-mask.jpg
+#transform_fn   ./sample-transform.dat
+#mask_fn        ./sample-mask.jpg
 vfov                45
 
 %% playback/display options %%
@@ -17,7 +17,9 @@ frame_skip          0
 frame_step          1
 do_display          1
 no_prompts          0
-fps                 15 
+fps                 60
+input_width         640 
+input_height        480 
 do_led_display      0
 
 %% search behaviour %%

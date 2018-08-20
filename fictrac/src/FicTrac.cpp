@@ -1264,6 +1264,7 @@ int main(int argc, char *argv[])
     string closed_loop_fn = "";
     string debug_video_fn = "", frames_video_fn = "";
     int fps = -1, cam_index = 0;
+    int input_width = -1, input_height = -1;
     unsigned int frame_skip = 0, frame_step = 1;
     bool do_display = true, do_config = false, do_search = true;
     bool save_video = false, save_input_video = false, load_template = true, no_prompts = false;
@@ -1376,6 +1377,12 @@ int main(int argc, char *argv[])
             } else if( tokens.front().compare("fps") == 0 ) {
                 tokens.pop_front();
                 fps = atoi(tokens.front().c_str());
+            } else if( tokens.front().compare("input_width") == 0 ) {
+                tokens.pop_front();
+                input_width = atoi(tokens.front().c_str());
+            } else if( tokens.front().compare("input_height") == 0 ) {
+                tokens.pop_front();
+                input_height = atoi(tokens.front().c_str());
             } else if( tokens.front().compare("cam_index") == 0 ) {
                 tokens.pop_front();
                 cam_index = atoi(tokens.front().c_str());
@@ -1543,7 +1550,9 @@ int main(int argc, char *argv[])
     printf("load_template:.  .  %d\n", load_template);
     printf("fisheye:.  .  .  .  %d\n", fisheye);
     printf("cam_input: .  .  .  %d\n", cam_input);
-    printf("fps: .  .  .  .  .  %d\n", fps);
+    printf("fps: .  .  .   %d\n", fps);
+    printf("input_width: .  .  .   %d\n", input_width);
+    printf("input_height: .  .  .   %d\n", input_height);
     printf("cam_index: .  .  .  %d\n", cam_index);
     printf("use_ball_colour: .  %d\n", use_ball_colour);
     printf("vfov:.  .  .  .  .  %f\n", vfov*Maths::R2D);
@@ -1587,14 +1596,12 @@ int main(int argc, char *argv[])
         #ifdef PGR_CAMERA
             cap = boost::shared_ptr<PGRSource>(new PGRSource(cam_index));
         #else
-            cap = boost::shared_ptr<CVSource>(new CVSource(fps));
+            cap = boost::shared_ptr<CVSource>(new CVSource(fps,input_width,input_height));
         #endif
 
-std::cout << "TRACE1";
 
         // set bayer mode
         cap->setBayerType(bayer_type);
-std::cout << "TRACE2";
 
     } else {
         // input video
@@ -1605,7 +1612,6 @@ std::cout << "TRACE2";
         fflush(stderr);
         exit(-1);
     }
-std::cout << "WOWOWOWOOW";
     int width = cap->getWidth();
     int height = cap->getHeight();
 

@@ -34,7 +34,7 @@
 
 class CVSource : public ImgSource {
 public:
-        CVSource(float fps=60);
+        CVSource(float fps=60, int input_width=640, int input_height=480);
 	CVSource(std::string filename);
 	virtual ~CVSource();
 

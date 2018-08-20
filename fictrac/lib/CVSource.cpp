@@ -7,9 +7,9 @@
 
 #include "CVSource.h"
 
-CVSource::CVSource(float fps)
+CVSource::CVSource(float fps, int width, int height)
 {
-        std::string gstreamer = "nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)I420, framerate=(fraction)30/1  ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+        std::string gstreamer = "nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(width) + ", height=(int)" + std::to_string(height) + ", format=(string)I420, framerate=(fraction)" + std::to_string(fps) + "/1  ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
         cv::VideoCapture cap(gstreamer, cv::CAP_GSTREAMER);
 	_open = cap.isOpened();
 
