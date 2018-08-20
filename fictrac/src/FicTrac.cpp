@@ -3342,6 +3342,24 @@ int main(int argc, char *argv[])
         redis_client.sync_commit();
 #endif
 
+#ifdef WITH_ANALOG
+       // frame
+        double framecnt = 5 * (cnt / 1000000);
+        PhidgetVoltageOutput_setVoltage(ch[0], framecnt);
+
+        // velx
+        double velx_ao = 5 * (velx / 100);
+        PhidgetVoltageOutput_setVoltage(ch[1], velx_ao);
+
+        // vely
+        double vely_ao = 5 * (vely / 100);
+        PhidgetVoltageOutput_setVoltage(ch[2], vely_ao);
+
+        // heading
+        double heading_ao = 5 * (heading*Maths::R2D / 260);
+        PhidgetVoltageOutput_setVoltage(ch[3], heading_ao);
+#endif
+
         double t4 = Utils::GET_CLOCK();
 
         ///
