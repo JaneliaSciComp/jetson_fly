@@ -10,7 +10,7 @@ cam_index           0
 output_fn      ./output.csv
 #transform_fn   ./sample-transform.dat
 #mask_fn        ./sample-mask.jpg
-vfov                45
+vfov                45 
 
 %% playback/display options %%
 frame_skip          0
@@ -19,7 +19,7 @@ do_display          1
 no_prompts          0
 fps                 60
 input_width         640 
-input_height        480 
+input_height        480
 do_led_display      0
 
 %% search behaviour %%

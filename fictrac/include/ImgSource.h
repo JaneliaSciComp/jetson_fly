@@ -43,6 +43,9 @@ public:
 	int getHeight() { return _height; }
 	double getTimestamp() { return _timestamp; }
 	void setBayerType(BAYER_TYPE bayer_type) { _bayerType = bayer_type; }
+        cv::VideoCapture getConnection() {
+              return NULL;
+        }
 
 protected:
 	bool _open;

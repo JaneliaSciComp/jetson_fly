@@ -34,7 +34,7 @@
 
 class CVSource : public ImgSource {
 public:
-        CVSource(float fps=60, int input_width=640, int input_height=480);
+        CVSource(float fps, int input_width, int input_height);
 	CVSource(std::string filename);
 	virtual ~CVSource();
 
@@ -42,6 +42,7 @@ public:
 	virtual void rewind();
 //	virtual void skip(unsigned int frames);
 	virtual bool grab(cv::Mat& frame);
+        virtual cv::VideoCapture getConnection();
 
 private:
 	cv::VideoCapture _cap;

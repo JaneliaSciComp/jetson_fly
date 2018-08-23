@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[])
     bool save_video = false, save_input_video = false, load_template = true, no_prompts = false;
     bool do_update = true;
     bool fisheye = false, cam_input = false, use_ball_colour = false;
-    double vfov = 45*Maths::D2R;
+    double vfov = 74*Maths::D2R;
     int quality_factor = 6;
     int remap_width = 60, remap_height = 60;
     int sphere_width = 180, sphere_height = 90;
@@ -1659,8 +1659,9 @@ int main(int argc, char *argv[])
         CameraModelPtr cam_model;
         if( fisheye ) {
             cam_model = CameraModel::createFisheye(
-                    width, height, vfov/height, 360*Maths::D2R);
+                   400, 400, vfov/400, 360*Maths::D2R);
         } else {
+            std::cout << "width/height is " << width << "/" << height << std::endl << "Creating Rectilinear model\n";
             cam_model = CameraModel::createRectilinear(width, height, vfov);
         }
 
@@ -1677,7 +1678,7 @@ int main(int argc, char *argv[])
         // zoomed sphere roi for precision
         VsDraw::Ptr vsdraw_zoom = VsDraw::Ptr(new VsDraw);
         CameraModelPtr zoom_model = CameraModel::createFisheye(
-                400, 400, vfov/400.0, 360*Maths::D2R);
+                height, height, vfov/height, 360*Maths::D2R);
 
         // rotation from forward
         double omega[3] = {0};
@@ -1686,7 +1687,7 @@ int main(int argc, char *argv[])
         RemapTransformPtr roi_transform = MatrixRemapTransform::createFromOmega(omegav);
         CameraRemapPtr zoom_remapper = CameraRemapPtr(
                 new CameraRemap(cam_model, zoom_model, roi_transform));
-        Mat zoom_bgr(400,400,CV_8UC3);
+        Mat zoom_bgr(height,height,CV_8UC3);
 
         Mat save_img(height, width, CV_8UC3);
 
@@ -1730,7 +1731,12 @@ int main(int argc, char *argv[])
                 // select sphere centre
                 case 0:
                 {
-                    waitKey(10);
+                    uint16_t key = waitKey(50);
+		    if ( key == 0x0071) {
+                         std::cout << "Exiting " << std::endl;
+			 cap->getConnection();
+                         exit(-1);
+                    }
                     if( click.size() > 0 ) {
                         if( click[0].x < 0 || click[0].y < 0 ) { click.clear(); continue; }
                         sphere_cx = click[0].x;
@@ -1752,7 +1758,13 @@ int main(int argc, char *argv[])
                 // select sphere radius
                 case 1:
                 {
-                    waitKey(10);
+                    uint16_t key = waitKey(50);
+                    if ( key == 0x0071) {
+                         std::cout << "Exiting " << std::endl;
+                         cap->getConnection();
+                         exit(-1);
+                    }
+
                     if( click.size() > 0 ) {
                         if( click[0].x < 0 || click[0].y < 0 ) { click.clear(); continue; }
                         Point sc = click.front();
@@ -1778,8 +1790,15 @@ int main(int argc, char *argv[])
                 case 2:
                 {
                     uint16_t key = waitKey(50);
+                    if ( key == 0x0071) {
+                         std::cout << "Exiting " << std::endl;
+                         cap->getConnection();
+                         exit(-1);
+                    }
+
                     switch( key ) {
-                        case 0xFF51:
+                        case 0x0077:
+                            std::cout << "Move to the left" << std::endl;
                             sphere_cx -= 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
@@ -1794,7 +1813,8 @@ int main(int argc, char *argv[])
                                 vsdraw->display("FicTrac-config");
                             }
                             break;
-                        case 0xFF52:
+                        case 0x0064:
+                            std::cout << "Move down" << std::endl;
                             sphere_cy -= 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
@@ -1809,7 +1829,8 @@ int main(int argc, char *argv[])
                                 vsdraw->display("FicTrac-config");
                             }
                             break;
-                        case 0xFF53:
+                        case 0x0072:
+                            std::cout << "Move to the right" << std::endl;
                             sphere_cx += 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
@@ -1824,7 +1845,8 @@ int main(int argc, char *argv[])
                                 vsdraw->display("FicTrac-config");
                             }
                             break;
-                        case 0xFF54:
+                        case 0x0065:
+                            std::cout << "Move up" << std::endl;
                             sphere_cy += 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
@@ -1839,7 +1861,8 @@ int main(int argc, char *argv[])
                                 vsdraw->display("FicTrac-config");
                             }
                             break;
-                        case 0x2D:
+                        case 0x007A:
+                            std::cout << "Radius smaller" << std::endl;
                             sphere_fov -= 0.1*(vfov*Maths::R2D/45.0)*Maths::D2R;
                             {
                                 CmPoint32f axis(sphere_centre[0], sphere_centre[1], sphere_centre[2]);
@@ -1853,7 +1876,8 @@ int main(int argc, char *argv[])
                                 printf("sphere FoV: %.1f degrees\n", sphere_fov*Maths::R2D);
                             }
                             break;
-                        case 0x3D:
+                        case 0x0078:
+                            std::cout << "Radius bigger" << std::endl;
                             sphere_fov += 0.1*(vfov*Maths::R2D/45.0)*Maths::D2R;
                             {
                                 CmPoint32f axis(sphere_centre[0], sphere_centre[1], sphere_centre[2]);
@@ -1870,6 +1894,8 @@ int main(int argc, char *argv[])
                         case 0x0A:
                         case 0x0D:
                         case 0xFF8D:
+                        case 0x0061:
+                            std::cout << "Accepting values" << std::endl;
                             roi_done = true;
                             break;
                         default:
@@ -2418,7 +2444,7 @@ int main(int argc, char *argv[])
                 cam_model = CameraModel::createFisheye(
                         width, height, vfov/height, 360*Maths::D2R);
             } else {
-                cam_model = CameraModel::createRectilinear(width, height, vfov);
+                cam_model = CameraModel::createRectilinear(400, 400, vfov);
             }
 
             Mat frame_bgr, save_img;
@@ -2540,7 +2566,7 @@ int main(int argc, char *argv[])
             cam_model = CameraModel::createFisheye(
                     width, height, vfov/height, 360*Maths::D2R);
         } else {
-            cam_model = CameraModel::createRectilinear(width, height, vfov);
+            cam_model = CameraModel::createRectilinear(width,height, vfov);
         }
 
         double sphere_radPerPix = sphere_fov/remap_width;
