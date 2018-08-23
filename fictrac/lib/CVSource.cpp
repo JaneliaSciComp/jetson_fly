@@ -9,13 +9,17 @@
 
 CVSource::CVSource(float fps, int width, int height)
 {
-        std::string gstreamer = "nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(width) + ", height=(int)" + std::to_string(height) + ", format=(string)I420, framerate=(fraction)" + std::to_string(fps) + "/1  ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+        std::cout << "Setting up CSI camera stream with parameters, width: " << width << ", height: " << height << ",fps: " << fps << std::endl;
+        std::string gstreamer = "nvcamerasrc wb=0 ce=0 ae=1 ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(width) + ", height=(int)" + std::to_string(height) + ", format=(string)I420, framerate=(fraction)" + std::to_string(fps) + "/1  ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+       std::cout << "Connection String\n" << gstreamer << std::endl;
+
         cv::VideoCapture cap(gstreamer, cv::CAP_GSTREAMER);
 	_open = cap.isOpened();
 
 	if( _open ) {
-	    _width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
-	    _height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+	    _width = width;
+	    _height = height;
+            std::cout << "Setting width and height to " << _width << "," << _height << std::endl;
 	} 
         _cap = cap;
 }
@@ -40,6 +44,10 @@ void CVSource::rewind()
 {
 	if( !_open ) { return; }
 	_cap.set(CV_CAP_PROP_POS_FRAMES, 0);
+}
+
+cv::VideoCapture CVSource::getConnection() {
+      _cap.release();
 }
 
 //// ignored by non-file source?
