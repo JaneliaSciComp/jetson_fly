@@ -1661,7 +1661,6 @@ int main(int argc, char *argv[])
             cam_model = CameraModel::createFisheye(
                    400, 400, vfov/400, 360*Maths::D2R);
         } else {
-            std::cout << "width/height is " << width << "/" << height << std::endl << "Creating Rectilinear model\n";
             cam_model = CameraModel::createRectilinear(width, height, vfov);
         }
 
@@ -1797,9 +1796,9 @@ int main(int argc, char *argv[])
                     }
 
                     switch( key ) {
-                        case 0x0077:
-                            std::cout << "Move to the left" << std::endl;
-                            sphere_cx -= 0.1;
+                        case 0x006C:
+                            std::cout << "Move left" << std::endl;
+                            sphere_cx += 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
                             {
@@ -1845,7 +1844,7 @@ int main(int argc, char *argv[])
                                 vsdraw->display("FicTrac-config");
                             }
                             break;
-                        case 0x0065:
+                        case 0x0075:
                             std::cout << "Move up" << std::endl;
                             sphere_cy += 0.1;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
