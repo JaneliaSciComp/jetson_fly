@@ -85,6 +85,7 @@ void Remapper::apply(const IplImage *src, IplImage *dst)
 	/// Sanity check.
 	///
 	if (src->width!=_srcW || src->height!=_srcH) {
+                std::cout << "SOURCE Width:" << src->width << ",  " << _srcW << std::endl;
 		fprintf(stderr, "Remapper::apply: unexpected source image size! Boo!\n");
 		abort();
 	}

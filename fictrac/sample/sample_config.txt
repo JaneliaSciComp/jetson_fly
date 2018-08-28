@@ -1,5 +1,5 @@
 %% input files %%
-input_vid_fn        ./sample.avi
+input_vid_fn        ./test-movie.avi
 load_template       0
 
 %% camera parameters %%
@@ -8,8 +8,8 @@ fisheye             0
 cam_input           1
 cam_index           0
 output_fn      ./output.csv
-#transform_fn   ./sample-transform.dat
-#mask_fn        ./sample-mask.jpg
+#transform_fn   ./test2-transform.dat
+#mask_fn        ./test2-mask.jpg
 vfov                45 
 
 %% playback/display options %%
@@ -18,8 +18,8 @@ frame_step          1
 do_display          1
 no_prompts          0
 fps                 60
-input_width         640 
-input_height        480
+input_width         1280 
+input_height        720
 do_led_display      0
 
 %% search behaviour %%
