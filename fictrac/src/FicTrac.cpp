@@ -16,7 +16,8 @@ SHARED_PTR(CameraRemap);
 #include "VsDraw.h"
 #include "serial.h"
 #include "CVSource.h"
-
+#include <thread>
+#include <atomic>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -39,6 +40,7 @@ SHARED_PTR(CameraRemap);
 #include <sys/fcntl.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include <iostream>
 
 #define EXTRA_DEBUG_WINDOWS 0
 #define LOG_TIMING 0
@@ -89,68 +91,68 @@ typedef struct {
 using rjdm::Maths;
 using namespace std;
 using namespace cv;
+        std::atomic<bool> stop(false);
+	bool SPHERE_INIT = false;
 
-bool SPHERE_INIT = false;
+	bool ACTIVE = true;
 
-bool ACTIVE = true;
+	enum CAM_MODEL_TYPE { RECTILINEAR, FISHEYE };
 
-enum CAM_MODEL_TYPE { RECTILINEAR, FISHEYE };
+	//FIXME: multi-thread printf calls
 
-//FIXME: multi-thread printf calls
+	//static void equalPointsOnSphere(int n)
+	//{
+	////    dlong := pi*(3-sqrt(5))  /* ~2.39996323 */
+	////    dz    := 2.0/N
+	////    long := 0
+	////    z    := 1 - dz/2
+	////    for k := 0 .. N-1
+	////        r    := sqrt(1-z*z)
+	////        node[k] := (cos(long)*r, sin(long)*r, z)
+	////        z    := z - dz
+	////        long := long + dlong
+	////    end
+	//
+	//  if( n < 2 ) { return; }
+	//
+	//  double dlong = PI*(3-sqrt(5.0));
+	//  double dz = 2.0/n;
+	//  double long = 0;
+	//  double z = 1.0-dz/2.0;
+	//}
 
-//static void equalPointsOnSphere(int n)
-//{
-////    dlong := pi*(3-sqrt(5))  /* ~2.39996323 */
-////    dz    := 2.0/N
-////    long := 0
-////    z    := 1 - dz/2
-////    for k := 0 .. N-1
-////        r    := sqrt(1-z*z)
-////        node[k] := (cos(long)*r, sin(long)*r, z)
-////        z    := z - dz
-////        long := long + dlong
-////    end
-//
-//  if( n < 2 ) { return; }
-//
-//  double dlong = PI*(3-sqrt(5.0));
-//  double dz = 2.0/n;
-//  double long = 0;
-//  double z = 1.0-dz/2.0;
-//}
+	static void TERMINATE(int) { ACTIVE = false; }
 
-static void TERMINATE(int) { ACTIVE = false; }
+	void drawLine(uint8_t* img, int w, int h, int c, int step,
+		double x1, double y1, double x2, double y2,
+		uint8_t r=255, uint8_t g=255, uint8_t b=255, int thickness=1)
+	{
+	    IplImage* ipl = cvCreateImageHeader(cvSize(w,h), IPL_DEPTH_8U, c);
+	    ipl->imageData = (char*)img;
+	    ipl->widthStep = step;
 
-void drawLine(uint8_t* img, int w, int h, int c, int step,
-        double x1, double y1, double x2, double y2,
-        uint8_t r=255, uint8_t g=255, uint8_t b=255, int thickness=1)
-{
-    IplImage* ipl = cvCreateImageHeader(cvSize(w,h), IPL_DEPTH_8U, c);
-    ipl->imageData = (char*)img;
-    ipl->widthStep = step;
+	    int x1i = round(x1*16);
+	    int y1i = round(y1*16);
+	    int x2i = round(x2*16);
+	    int y2i = round(y2*16);
 
-    int x1i = round(x1*16);
-    int y1i = round(y1*16);
-    int x2i = round(x2*16);
-    int y2i = round(y2*16);
+	    cvLine(ipl, cvPoint(x1i,y1i), cvPoint(x2i,y2i), CV_RGB(b,g,r), thickness, CV_AA, 4);
+	    cvReleaseImageHeader(&ipl);
+	}
 
-    cvLine(ipl, cvPoint(x1i,y1i), cvPoint(x2i,y2i), CV_RGB(b,g,r), thickness, CV_AA, 4);
-    cvReleaseImageHeader(&ipl);
-}
+	void drawLine(Mat& img,
+		double x1, double y1, double x2, double y2,
+		uint8_t r=255, uint8_t g=255, uint8_t b=255, int thickness=1)
+	{
+	    return drawLine(img.data, img.cols, img.rows, img.channels(), img.step,
+		    x1, y1, x2, y2,
+		    r, g, b, thickness);
+	}
 
-void drawLine(Mat& img,
-        double x1, double y1, double x2, double y2,
-        uint8_t r=255, uint8_t g=255, uint8_t b=255, int thickness=1)
-{
-    return drawLine(img.data, img.cols, img.rows, img.channels(), img.step,
-            x1, y1, x2, y2,
-            r, g, b, thickness);
-}
-
-void drawText(uint8_t* img, int w, int h, int c, int step,
-        std::string text, int x, int y,
-        double scale, int r=-1, int g=-1, int b=-1,
-        bool shadow=false, int shadow_val=-1)
+	void drawText(uint8_t* img, int w, int h, int c, int step,
+		std::string text, int x, int y,
+		double scale, int r=-1, int g=-1, int b=-1,
+		bool shadow=false, int shadow_val=-1)
 {
     CvFont font;
     cvInitFont(&font, CV_FONT_HERSHEY_SIMPLEX, 0.5*scale, 0.5*scale, 0, 1*scale, CV_AA);
@@ -1166,6 +1168,13 @@ struct s_logger {
     int state;
 };
 
+struct s_userinteraction {
+    pthread_t thread;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    int state;
+};
+
 void* logger(void* params)
 {
     Utils::SET_PROCESS_PRIORITY(-2);
@@ -1201,6 +1210,12 @@ void* logger(void* params)
     printf("%s terminated\n", __func__);
     fflush(stdout);
     return NULL;
+}
+
+void* listen_exit(void* params) {
+    char ch;
+    std::cin.get();
+    stop = true;
 }
 
 int main(int argc, char *argv[])
@@ -1471,6 +1486,7 @@ int main(int argc, char *argv[])
         }
         // ignore the remainder of the line
         getline(file, line);
+
     }
 
     if( !cam_input && input_vid_fn.empty() ) {
@@ -2817,7 +2833,14 @@ int main(int argc, char *argv[])
     unsigned int nframes = 0;
     double av_err = 0, av_exec_time = 0, av_loop_time = 0, total_dist = 0;
     double guess[3] = {0,0,0};
+    boost::shared_ptr<s_userinteraction> userinteraction = boost::shared_ptr<s_userinteraction>(new s_userinteraction);
+    // start separate thread to catch escape key
+    pthread_create(&userinteraction->thread, NULL, &listen_exit, NULL);
+
     for( unsigned int cnt = 1, seq_n = 1; ; cnt++, seq_n++ ) {
+        if (bool(stop)) {
+            break;
+        }
 
         nframes++;
 
