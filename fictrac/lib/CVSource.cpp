@@ -9,7 +9,7 @@
 
 CVSource::CVSource(float fps, int width, int height)
 {
-        std::string gstreamer = "nvcamerasrc wb=0 ce=0 ae=1 ! video/x-raw(memory:NVMM), width=(int)"+std::to_string(width) + ", height=(int)" + std::to_string(height) + ", format=(string)I420, framerate=(fraction)" + std::to_string((int)fps) + "/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+        std::string gstreamer = "nvcamerasrc flicker=0 auto-exposure=1 color-effect=1 wbmode=0 ! video/x-raw(memory:NVMM), width=(int)"+std::to_string(width) + ", height=(int)" + std::to_string(height) + ", format=(string)I420, framerate=(fraction)" + std::to_string((int)fps) + "/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
        std::cout << "Connection String\n" << gstreamer << std::endl;
 
         cv::VideoCapture cap(gstreamer, cv::CAP_GSTREAMER);
