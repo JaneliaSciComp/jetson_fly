@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
                     switch( key ) {
                         case 0x006C:
                             std::cout << "Move left" << std::endl;
-                            sphere_cx += 0.1;
+                            sphere_cx -= 0.3;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
                             {
@@ -1830,7 +1830,7 @@ int main(int argc, char *argv[])
                             break;
                         case 0x0064:
                             std::cout << "Move down" << std::endl;
-                            sphere_cy -= 0.1;
+                            sphere_cy += 0.3;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
                             {
@@ -1846,7 +1846,7 @@ int main(int argc, char *argv[])
                             break;
                         case 0x0072:
                             std::cout << "Move to the right" << std::endl;
-                            sphere_cx += 0.1;
+                            sphere_cx += 0.3;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
                             {
@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[])
                             break;
                         case 0x0075:
                             std::cout << "Move up" << std::endl;
-                            sphere_cy += 0.1;
+                            sphere_cy -= 0.3;
                             cam_model->pixelIndexToVector(sphere_cx, sphere_cy, sphere_centre);
                             Maths::NORMALISE_VEC(sphere_centre);
                             {
@@ -1878,7 +1878,7 @@ int main(int argc, char *argv[])
                             break;
                         case 0x007A:
                             std::cout << "Radius smaller" << std::endl;
-                            sphere_fov -= 0.1*(vfov*Maths::R2D/45.0)*Maths::D2R;
+                            sphere_fov -= 0.2*(vfov*Maths::R2D/45.0)*Maths::D2R;
                             {
                                 CmPoint32f axis(sphere_centre[0], sphere_centre[1], sphere_centre[2]);
                                 vsdraw->openImage(cam_model, frame_bgr);
@@ -1893,7 +1893,7 @@ int main(int argc, char *argv[])
                             break;
                         case 0x0078:
                             std::cout << "Radius bigger" << std::endl;
-                            sphere_fov += 0.1*(vfov*Maths::R2D/45.0)*Maths::D2R;
+                            sphere_fov += 0.2*(vfov*Maths::R2D/45.0)*Maths::D2R;
                             {
                                 CmPoint32f axis(sphere_centre[0], sphere_centre[1], sphere_centre[2]);
                                 vsdraw->openImage(cam_model, frame_bgr);
