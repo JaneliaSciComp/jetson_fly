@@ -2828,6 +2828,15 @@ int main(int argc, char *argv[])
         Phidget_setChannel((PhidgetHandle)ch[2], 2);
         PhidgetVoltageOutput_create(&ch[3]);
         Phidget_setChannel((PhidgetHandle)ch[3], 3);
+
+        printf("Opening and Waiting for Attachment...\n");
+        PhidgetReturnCode prc; //Used to catch error codes from each Phidget function call
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[0],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[1],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[2],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[3],1000);
+std::cout << "Finished creating channels for Voltage output\n";
+
 #endif
 
     unsigned int nframes = 0;
@@ -3391,21 +3400,35 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef WITH_ANALOG
+
        // frame
-        double framecnt = 5 * (cnt / 1000000);
-        PhidgetVoltageOutput_setVoltage(ch[0], framecnt);
+        double framecnt = ((double)cnt / 100.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[0], framecnt);
+        if (prc!=0x0) {
+            printf ("Problem writing to AO board\n");
+        }
 
         // velx
-        double velx_ao = 5 * (velx / 100);
-        PhidgetVoltageOutput_setVoltage(ch[1], velx_ao);
+        double posx_ao = (intx / 20.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[1], posx_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing to AO board\n");
+        }
 
         // vely
-        double vely_ao = 5 * (vely / 100);
-        PhidgetVoltageOutput_setVoltage(ch[2], vely_ao);
+        double posy_ao = (inty / 20.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[2], posy_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing to AO board\n");
+        }
 
         // heading
-        double heading_ao = 5 * (heading*Maths::R2D / 260);
-        PhidgetVoltageOutput_setVoltage(ch[3], heading_ao);
+        double heading_ao = (heading / 3.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[3], heading_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing to AO board\n");
+        }
+
 #endif
 
         double t4 = Utils::GET_CLOCK();
