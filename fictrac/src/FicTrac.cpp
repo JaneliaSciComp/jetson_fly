@@ -3436,7 +3436,7 @@ std::cout << "Finished creating channels for Voltage output\n";
         ///
         /// DRAWING
         ///
-
+if (cnt%3==0) {
         if( do_led_display ) {
             static Mat led_display(32, 128, CV_8UC3);
             rectangle(led_display, cvPoint(0,0), cvPoint(127,31), CV_RGB(0,255,255), CV_FILLED, 8, 0);
@@ -3491,49 +3491,6 @@ std::cout << "Finished creating channels for Voltage output\n";
             Mat draw_input = draw(Rect(0, 0, 2*draw_size, 2*draw_size));
 //          draw_input.setTo(Scalar::all(128));
             draw_remapper->apply(frame_bgr, draw_input);
-
-            // draw rotation axis
-//          {
-//              double cx = draw_input.cols/2.0, cy = draw_input.rows/2.0;
-//
-//              circle(draw_input,
-//                      Point(round(cx*16), round(16*cy)),
-//                      8, CV_RGB(255,255,255), 1, CV_AA, 4);
-//
-//              double c[3];
-//              draw_camera->pixelIndexToVector(cx, cy, c);
-//              Maths::NORMALISE_VEC(c);
-//              double r[3] = {-guess[0], -guess[1], -guess[2]};
-//              double w[3] = {0};
-//              Maths::MAT_MUL_VEC(Rw, r, w);
-//              Maths::NORMALISE_VEC(r);
-//              r[0] = c[0]+0.1*r[0];
-//              r[1] = c[1]+0.1*r[1];
-//              r[2] = c[2]+0.1*r[2];
-//
-//              double rx, ry;
-//              draw_camera->vectorToPixelIndex(r, rx, ry);
-//
-//              line(draw_input,
-//                      Point(round(cx*16), round(cy*16)),
-//                      Point(round(rx*16), round(ry*16)),
-//                      CV_RGB(255, 255, 255), 1, CV_AA, 4);
-//
-//              double d[3] = {w[1], -w[0], 0};
-//              Maths::NORMALISE_VEC(d);
-//              Maths::MAT_T_MUL_VEC(Rw, d, w);
-//              d[0] = c[0]+0.1*w[0];
-//              d[1] = c[1]+0.1*w[1];
-//              d[2] = c[2]+0.1*w[2];
-//
-//              double dx, dy;
-//              draw_camera->vectorToPixelIndex(d, dx, dy);
-//
-//              line(draw_input,
-//                      Point(round(cx*16), round(cy*16)),
-//                      Point(round(dx*16), round(dy*16)),
-//                      CV_RGB(127, 127, 127), 1, CV_AA, 4);
-//          }
 
 
             // comparison diff image
@@ -3650,51 +3607,6 @@ std::cout << "Finished creating channels for Voltage output\n";
                     ppy = py;
                 }
             }
-
-            // draw quad axes
-//          {
-//              // get initial corner positions
-//              double o0[3] = {0.0, 0.0, 0.0};
-//              double x0[3] = {50.0, 0.0, 0.0};
-//              double y0[3] = {0.0, 50.0, 0.0};
-//              double z0[3] = {0.0, 0.0, 50.0};
-//
-//              // rotate corners
-//              double o1[3] = {0};
-//              Maths::MAT_T_MUL_VEC(Rw, o0, o1);
-//              double x1[3] = {0};
-//              Maths::MAT_T_MUL_VEC(Rw, x0, x1);
-//              double y1[3] = {0};
-//              Maths::MAT_T_MUL_VEC(Rw, y0, y1);
-//              double z1[3] = {0};
-//              Maths::MAT_T_MUL_VEC(Rw, z0, z1);
-//
-//              double cx = draw_input.cols/2.0, cy = draw_input.rows/2.0;
-//
-//              circle(draw_input,
-//                      Point(round(cx*16), round(16*cy)),
-//                      8, CV_RGB(255,255,255), 1, CV_AA, 4);
-//
-//              line(draw_input,
-//                      Point(round(cx*16), round(cy*16)),
-//                      Point(round((cx+x1[0])*16), round((cy+x1[1])*16)),
-//                      CV_RGB(255, 255, 255), 1, CV_AA, 4);
-//              line(draw_input,
-//                      Point(round(cx*16), round(cy*16)),
-//                      Point(round((cx+y1[0])*16), round((cy+y1[1])*16)),
-//                      CV_RGB(255, 255, 255), 1, CV_AA, 4);
-//              line(draw_input,
-//                      Point(round(cx*16), round(cy*16)),
-//                      Point(round((cx+z1[0])*16), round((cy+z1[1])*16)),
-//                      CV_RGB(255, 255, 255), 1, CV_AA, 4);
-//
-//              drawText(draw_input, "x",
-//                      cx+x1[0], cy+x1[1], 1, 255, 255, 255, true, 0);
-//              drawText(draw_input, "y",
-//                      cx+y1[0], cy+y1[1], 1, 255, 255, 255, true, 0);
-//              drawText(draw_input, "z",
-//                      cx+z1[0], cy+z1[1], 1, 255, 255, 255, true, 0);
-//          }
 
             // draw bee position history
             {
@@ -3827,7 +3739,7 @@ std::cout << "Finished creating channels for Voltage output\n";
         }
 
         if( save_input_video ) { input_writer->enqueue_frame(frame_bgr); }
-
+}
         double t5 = Utils::GET_CLOCK();
 
         double curr_time = Utils::GET_CLOCK();
