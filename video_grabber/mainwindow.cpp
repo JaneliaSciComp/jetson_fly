@@ -52,7 +52,7 @@ void MainWindow::ParseOptionsFile() {
 // this method takes the current camera options and generates the appropriate
 // gstreamer pipeline command for capturing video
 QString MainWindow::GenerateGStreamerPipeline() {
-    return "nvcamerasrc wb=0 ce=0 ae=1 ! video/x-raw(memory:NVMM), width=(int)" + settings->getWidth() +
+    return "nvcamerasrc flicker=0 auto-exposure=1 exposure-time=0.0833 color-effect=1 wbmode=0 ! video/x-raw(memory:NVMM), width=(int)" + settings->getWidth() +
                 ", height=(int)" + settings->getHeight() + ", format=(string)I420, framerate=(fraction)" + settings->getFPS() +
                 "/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 }
@@ -229,7 +229,7 @@ void MainWindow::on_previewButton_clicked()
             QString output(irProcess->readAllStandardOutput());
             std::cout << output.toUtf8().constData();
         }
-        QString pipeline = "nvcamerasrc wb=0 ce=0 ae=1 ! video/x-raw(memory:NVMM), width=(int)" + settings->getWidth() +
+        QString pipeline = "nvcamerasrc flicker=0 auto-exposure=1 exposure-time=0.0833 color-effect=1 wbmode=0 ! video/x-raw(memory:NVMM), width=(int)" + settings->getWidth() +
                 ", height=(int)" + settings->getHeight() + ", format=(string)I420, framerate=(fraction)" + settings->getFPS() +
                 "/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 
