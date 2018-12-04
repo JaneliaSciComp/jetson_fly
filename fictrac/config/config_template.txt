@@ -1,0 +1,44 @@
+%% input files %%
+input_vid_fn        ./input.mp4
+load_template       0
+
+%% camera parameters %%
+do_config           0
+fisheye             0
+cam_input           0
+cam_index           0
+output_fn      $output_csv 
+transform_fn        ./transform.dat
+template_fn         ./output-template.jpg
+mask_fn             ./mask.jpg
+vfov                5 
+
+%% playback/display options %%
+frame_skip          0
+frame_step          1
+do_display          $display
+no_prompts          1
+fps                 60
+input_width         1280
+input_height        720
+do_led_display      0
+
+%% search behaviour %%
+do_search           0
+use_ball_colour     0
+quality_factor      5 
+nlopt_ftol          1e-3
+nlopt_max_eval      200
+error_thresh        10000
+thresh_win          0.15
+thresh_ratio        2.7 
+max_bad_frames      0
+
+%% output options %%
+do_update           1
+save_video          0
+save_input_video    0
+do_serial_out       0
+serial_baud         115200
+serial_port         /dev/ttyS0
+do_socket_out       0
