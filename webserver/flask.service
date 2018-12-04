@@ -1,0 +1,14 @@
+[Unit]
+Description=flask
+After=network.target network-online.target
+
+[Service]
+Type=simple
+User=nvidia
+Group=nvidia
+Restart=always
+PIDFile=/var/run/flask/service.pid
+ExecStart=/home/nvidia/webserver/bootup.sh
+
+[Install]
+WantedBy=multi-user.target
