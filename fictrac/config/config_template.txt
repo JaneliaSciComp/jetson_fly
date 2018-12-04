@@ -7,7 +7,7 @@ do_config           0
 fisheye             0
 cam_input           0
 cam_index           0
-output_fn      $output_csv 
+output_fn           ./output_csv 
 transform_fn        ./transform.dat
 template_fn         ./output-template.jpg
 mask_fn             ./mask.jpg
