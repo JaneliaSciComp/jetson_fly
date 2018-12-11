@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory,after_this_request
 import threading
 import logging
 from logging.handlers import RotatingFileHandler
@@ -12,6 +12,7 @@ import fileinput
 import datetime
 import os
 import shutil
+import tarfile
 
 app = Flask(__name__)
 app.config.from_envvar('YOURAPPLICATION_SETTINGS')
@@ -30,6 +31,21 @@ class ficThread (threading.Thread):
         global childproc
         childproc = subprocess.Popen ("exec " + app.config["PATH_TO_FICTRAC"] + "build/fictrac " + self.config_file, stdout=subprocess.PIPE, shell=True)
         streamdata = childproc.communicate()[0]
+
+@app.route('/fictrac/results')
+def get_fictrac_results():
+    # create tar of results based off datetimestamp 
+    trial = request.args.get('id')
+    output_home = app.config["FICTRAC_OUTPUT_DIR"]
+    output_dir = os.path.join(output_home, trial) 
+    tarName = trial + '.tar.gz'
+    with tarfile.open(os.path.join(output_dir, tarName), mode='w:gz') as archive:
+        archive.add(output_dir, arcname=trial)
+    @after_this_request
+    def remove_file(response):
+       os.remove (os.path.join(output_dir, tarName))
+       return response
+    return send_file(os.path.join(output_dir, tarName), as_attachment=True)
 
 @app.route('/fictrac/start',methods=['GET', 'POST'])
 def start_fictrac():
@@ -50,6 +66,7 @@ def start_fictrac():
             filedata = filedata.replace('$display', content['display'])
         if content['trial_name'] is not None:
             output_dir = os.path.join(output_home,content['trial_name'])
+            datetimestamp = content['trial_name']
     else:
         filedata = filedata.replace('$display', '1')
 
@@ -63,16 +80,12 @@ def start_fictrac():
 
     t = ficThread(config_file)
     t.start()
-    return 'Fictrac started with configuration'
+    return 'Fictrac started with output directory ' + datetimestamp
 
 @app.route('/fictrac/stop')
 def kill_fictrac():
     childproc.terminate()
     return "Fictrac stopped" 
-
-@app.route('/fictrac/results')
-def get_fictrac_results():
-   return "true"
 
 @app.route('/capture', methods = ['GET','POST'])
 def capture_photo():
