@@ -65,10 +65,6 @@ void onMouseEvent(int event, int x, int y, int f, void* ptr)
         case cv::EVENT_LBUTTONDOWN:
             break;
 
-        case cv::EVENT_RBUTTONDOWN:
-           std::cout << "Down";
-           break;
-            
         case cv::EVENT_LBUTTONUP:
             switch(pdata->mode)
             {
@@ -97,8 +93,7 @@ void onMouseEvent(int event, int x, int y, int f, void* ptr)
             }
             break;
         
-        case cv::EVENT_RBUTTONUP:
-std::cout << "foo";
+        case cv::EVENT_MBUTTONUP:
             switch(pdata->mode)
             {
                 case ConfigGui::CIRC_PTS:
