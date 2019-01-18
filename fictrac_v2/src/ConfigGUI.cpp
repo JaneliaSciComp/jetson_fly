@@ -64,6 +64,10 @@ void onMouseEvent(int event, int x, int y, int f, void* ptr)
     {
         case cv::EVENT_LBUTTONDOWN:
             break;
+
+        case cv::EVENT_RBUTTONDOWN:
+           std::cout << "Down";
+           break;
             
         case cv::EVENT_LBUTTONUP:
             switch(pdata->mode)
@@ -94,6 +98,7 @@ void onMouseEvent(int event, int x, int y, int f, void* ptr)
             break;
         
         case cv::EVENT_RBUTTONUP:
+std::cout << "foo";
             switch(pdata->mode)
             {
                 case ConfigGui::CIRC_PTS:
@@ -423,7 +428,7 @@ bool ConfigGui::run()
 #ifdef WIN32
     const char enter_key = 0x0d;
 #else // !WIN32
-    const char enter_key = 0x0a;
+    const char enter_key = 0x0d;
 #endif // WIN32
     const int click_rad = std::max(int(_w/150+0.5), 5);
     Mat disp_frame, zoom_frame(ZOOM_DIM, ZOOM_DIM, CV_8UC3);
@@ -542,8 +547,7 @@ bool ConfigGui::run()
                 /// Display.
                 cv::imshow("zoomROI", zoom_frame);
                 cv::imshow("configGUI", disp_frame);
-                key = cv::waitKey(5);
-                
+                key = cv::waitKey(50);
                 /// State machine logic.
                 if (key == enter_key) {
                     if (_input_data.circPts.size() >= 3) {
