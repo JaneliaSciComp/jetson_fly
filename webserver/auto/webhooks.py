@@ -16,8 +16,7 @@ import tarfile
 
 app = Flask(__name__)
 app.config.from_envvar('YOURAPPLICATION_SETTINGS')
-handler = RotatingFileHandler('/home/nvidia/webserver/log/server.log',
-    maxBytes=10000000, backupCount=3)
+handler = RotatingFileHandler(os.path.join(app.config["PATH_TO_WEBSERVER"],'log/server.log'),maxBytes=10000000, backupCount=3)
 handler.setLevel(logging.INFO)
 app.logger.addHandler(handler)
 
@@ -29,7 +28,7 @@ class ficThread (threading.Thread):
     def run(self):
         app.logger.info ("Starting command line")
         global childproc
-        childproc = subprocess.Popen ("exec " + app.config["PATH_TO_FICTRAC"] + "build/fictrac " + self.config_file, stdout=subprocess.PIPE, shell=True)
+        childproc = subprocess.Popen ("exec " + app.config["PATH_TO_FICTRAC"] + "bin/fictrac " + self.config_file, stdout=subprocess.PIPE, shell=True)
         streamdata = childproc.communicate()[0]
 
 @app.route('/fictrac/results')
@@ -50,7 +49,7 @@ def get_fictrac_results():
 @app.route('/fictrac/start',methods=['GET', 'POST'])
 def start_fictrac():
     # read in configuration template  
-    fictrac_config_template = os.path.join(app.config["FICTRAC_CONFIG_DIR"],'config_template.txt')
+    fictrac_config_template = os.path.join(app.config["FICTRAC_CONFIG_DIR"],'config.txt')
     with open(fictrac_config_template,'r') as file:
         filedata = file.read()
  
@@ -68,12 +67,11 @@ def start_fictrac():
             output_dir = os.path.join(output_home,content['trial_name'])
             datetimestamp = content['trial_name']
     else:
-        filedata = filedata.replace('$display', '1')
+        filedata = filedata.replace('$display', 'y')
+    filedata = filedata.replace('$output', output_dir)
 
     # write out new config file in temp directory
     os.mkdir (output_dir)
-    shutil.copy(os.path.join(app.config["FICTRAC_CONFIG_DIR"],'mask.jpg'),os.path.join(output_dir,'mask.jpg'))
-    shutil.copy(os.path.join(app.config["FICTRAC_CONFIG_DIR"],'transform.dat'),os.path.join(output_dir,'transform.dat'))
     config_file = os.path.join(output_dir, "config.txt") 
     with open(config_file, 'w') as file:
         file.write(filedata)

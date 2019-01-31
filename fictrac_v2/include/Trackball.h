@@ -18,6 +18,7 @@
 #include <opencv2/imgproc.hpp>  
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
+#include <phidget22.h>
 
 #include <memory>	// unique_ptr, shared_ptr
 #include <thread>
@@ -62,6 +63,8 @@ private:
         std::deque<cv::Mat> R_roi_hist;
         std::deque<CmPoint64f> pos_heading_hist;
     };
+    PhidgetVoltageOutputHandle* ch;
+    PhidgetReturnCode prc; 
 
     bool updateCanvasAsync(std::shared_ptr<DrawData> data);
     void processDrawQ();

@@ -29,6 +29,7 @@ endif()
 # find dependencies
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${OPENCV_DIR} ${NLOPT_DIR})
 find_package(OpenCV 3.4.0 REQUIRED)
+find_library(Phidget_LIB phidget22)
 if(MSVC)
     find_library(NLOPT_LIB libnlopt-0.lib)
     
@@ -100,7 +101,7 @@ else()  # gcc
 endif()
 
 # linking and post-build
-target_link_libraries(libfictrac PUBLIC ${OpenCV_LIBS} ${NLOPT_LIB})
+target_link_libraries(libfictrac PUBLIC ${OpenCV_LIBS} ${NLOPT_LIB} ${Phidget_LIB})
 if(PGR_USB3)
     target_link_libraries(libfictrac PUBLIC ${PGR_LIB})
 endif()

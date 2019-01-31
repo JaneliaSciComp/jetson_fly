@@ -16,9 +16,31 @@
 #include "BasicRemapper.h"
 #include "misc.h"
 #include "CVSource.h"
+#define WITH_ANALOG
 #ifdef PGR_USB3
 #include "PGRSource.h"
 #endif // PGR_USB3
+#ifdef WITH_ANALOG
+#include <phidget22.h>
+typedef struct {
+        int isRemote;
+        int serverDiscovery;
+        char hostname[100];
+        int port;
+        char password[100];
+} NetInfo;
+
+typedef struct {
+        int deviceSerialNumber;
+        int hubPort;
+        int channel;
+        int isHubPortDevice;
+        int isVINT;
+        NetInfo netInfo;
+} ChannelInfo;
+
+
+#endif
 
 /// OpenCV individual includes required by gcc?
 #include <opencv2/highgui.hpp>
@@ -364,7 +386,8 @@ LOG_ERR("MADE IT HERE");
         _roi_mask, _p1s_lut);
 
     /// Output.
-    string data_fn = _base_fn + "-" + execTime() + ".dat";
+    string out_dir = _cfg("out_dir");
+    string data_fn = out_dir + "/sample-" + execTime() + ".dat";
     _log = make_unique<Recorder>(RecorderInterface::RecordType::FILE, data_fn);
 
     /// Display.
@@ -409,6 +432,30 @@ LOG_ERR("MADE IT HERE");
             return;
         }
     }
+
+   /// set up phidgets analog output
+#ifdef WITH_ANALOG
+        ch = new PhidgetVoltageOutputHandle[4];
+        ChannelInfo channelInfo;
+
+        PhidgetVoltageOutput_create(&ch[0]);
+        Phidget_setChannel((PhidgetHandle)ch[0], 0);
+        PhidgetVoltageOutput_create(&ch[1]);
+        Phidget_setChannel((PhidgetHandle)ch[1], 1);
+        PhidgetVoltageOutput_create(&ch[2]);
+        Phidget_setChannel((PhidgetHandle)ch[2], 2);
+        PhidgetVoltageOutput_create(&ch[3]);
+        Phidget_setChannel((PhidgetHandle)ch[3], 3);
+
+        printf("Opening and Waiting for Attachment...\n");
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[0],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[1],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[2],1000);
+        prc = Phidget_openWaitForAttachment((PhidgetHandle)ch[3],1000);
+std::cout << "Finished creating channels for Voltage output\n";
+
+#endif
+
 
     /// Frame source.
     _frameGrabber = std::make_unique<FrameGrabber>(
@@ -887,6 +934,48 @@ bool Trackball::logData()
     ss << _intx << ", " << _inty << ", ";
     // timestamp | sequence number
     ss << _ts << ", " << _seq << std::endl;
+#ifdef WITH_ANALOG
+
+       // frame
+        double framecnt = ((double)(_cnt%1000) / 50.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[0], framecnt);
+        if (prc!=0x0) {
+            printf ("Problem writing frame count to AO board\n");
+        }
+
+        // velx
+        double posx_ao = ((double)_intx / 20.0) - 10;
+        if (posx_ao<-10) {
+            posx_ao=-10;
+        } else if (posx_ao>10) {
+            posx_ao=10;
+        }
+        prc = PhidgetVoltageOutput_setVoltage(ch[1], posx_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing position x to AO board, posx:%f\n",posx_ao);
+        }
+
+        // vely
+        double posy_ao = ((double)_inty / 20.0) - 10;
+        if (posy_ao<-10) {
+            posy_ao=-10;
+        } else if (posy_ao>10) {
+            posy_ao=10;
+        }
+        prc = PhidgetVoltageOutput_setVoltage(ch[2], posy_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing position y to AO board, posy:%f\n",posy_ao);
+        }
+
+        // heading
+        double heading_ao = (_heading / 3.0) - 10;
+        prc = PhidgetVoltageOutput_setVoltage(ch[3], heading_ao);
+        if (prc!=0x0) {
+            printf ("Problem writing heading to AO board\n");
+        }
+        printf ("AO values, frame:%f, posx:%f, posy:%f, heading:%f\n",framecnt,posx_ao, posy_ao,heading_ao);
+
+#endif
 
     // async i/o
     return _log->addMsg(ss.str());

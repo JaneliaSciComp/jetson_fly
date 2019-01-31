@@ -8,7 +8,7 @@ User=nvidia
 Group=nvidia
 Restart=always
 PIDFile=/var/run/flask/service.pid
-ExecStart=/home/nvidia/webserver/bootup.sh
+ExecStart=/home/nvidia/github_jetson/jetson_fly/webserver/bootup.sh
 
 [Install]
 WantedBy=multi-user.target
