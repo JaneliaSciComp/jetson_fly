@@ -1,28 +1,12 @@
-///
-/// Saul Thurrowgood, May 2010.
-///
+/// FicTrac http://rjdmoore.net/fictrac/
+/// \file       CmPoint.h
+/// \brief      3D vector type with several useful operations.
+/// \author     Saul Thurrowgood, Richard Moore
+/// \copyright  CC BY-NC-SA 3.0
 
-/*#####################################################################
-# This work is licensed under the Creative Commons                    #
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.          #
-# To view a copy of this license, visit                               #
-# http://creativecommons.org/licenses/by-nc-sa/3.0/                   #
-#                                                                     #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY           #
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          #
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR             #
-# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR       #
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     #
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE      #
-# USE OR OTHER DEALINGS IN THE SOFTWARE.                              #
-#####################################################################*/
-
-#ifndef _CM_POINT_H
-#define _CM_POINT_H 1
+#pragma once
 
 #include <opencv2/opencv.hpp>
-
 
 ///
 /// Typedef the types we support by explicit instantiation in CmPoint.cpp
@@ -30,7 +14,6 @@
 template<typename T> class CmPointT;
 typedef CmPointT<float>  CmPoint32f;
 typedef CmPointT<double> CmPoint64f;
-
 
 template<typename T>
 class CmPointT {
@@ -44,19 +27,20 @@ public:
 	CmPointT(const CvPoint3D32f& p) : x(p.x), y(p.y), z(p.z) {}
 	CmPointT(const CmPoint32f& p) : x(p.x), y(p.y), z(p.z) {}
 	CmPointT(const CmPoint64f& p) : x(p.x), y(p.y), z(p.z) {}
+    CmPointT(T az, T el);
 
 	/// Allow implicit conversion of scalar to CmPointT for scaling
 	CmPointT(T scale) : x(scale), y(scale), z(scale) {}
 
 	void copyTo(CvPoint3D32f& p) const { p = cvPoint3D32f(x,y,z); }
-	void copyTo(cv::Point3f& p) const { p = cv::Point3f(x,y,z); }
-	void copyTo(cv::Point3d& p) const { p = cv::Point3d(x,y,z); }
-	void copyTo(float *p) const { p[0]=x; p[1]=y; p[2]=z; }
-	void copyTo(double *p) const { p[0]=x; p[1]=y; p[2]=z; }
+	void copyTo(cv::Point3f& p) const { p = cv::Point3f(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)); }
+	void copyTo(cv::Point3d& p) const { p = cv::Point3d(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z)); }
+	void copyTo(float *p) const { p[0] = static_cast<float>(x); p[1] = static_cast<float>(y); p[2] = static_cast<float>(z); }
+	void copyTo(double *p) const { p[0] = static_cast<double>(x); p[1] = static_cast<double>(y); p[2] = static_cast<double>(z); }
 
 	/// No implicit conversion from pointer types, so provide copy
-	void copy(const float *p) { x=p[0]; y=p[1]; z=p[2]; }
-	void copy(const double *p) { x=p[0]; y=p[1]; z=p[2]; }
+	void copy(const float *p) { x = static_cast<T>(p[0]); y = static_cast<T>(p[1]); z = static_cast<T>(p[2]); }
+	void copy(const double *p) { x= static_cast<T>(p[0]); y = static_cast<T>(p[1]); z = static_cast<T>(p[2]); }
 
 	/// Allow indexing as if it were an array of T
 	T& operator[] (unsigned i) { return (&x)[i]; }
@@ -90,10 +74,17 @@ public:
 	///
 	void omegaToMatrix(float R[9]) const;
 	void omegaToMatrix(double R[9]) const;
+    
+    static cv::Mat_<T> omegaToMatrix(const CmPointT& omega);
+    static CmPointT<T> matrixToOmega(const cv::Mat_<T>& m);
+    
+    void omegaToAzElMag(T& az, T& el, T& mag) const;
 
 	///
 	/// Multiply this point by a 3x3 matrix and return the result.
 	///
+    CmPointT getTransformed(cv::Mat_<T> m) const;
+
 	CmPointT getTransformed(const T M[9]) const
 	{
 		return CmPointT(
@@ -108,6 +99,12 @@ public:
 	///
 	void getRotationAbout(T angle, T R[9]) const;
 	void getRotationAboutNorm(T angle, T R[9]) const;
+
+    ///
+    /// Find rotation between this vetor and specified vector.
+    ///
+    CmPointT getRotationTo(CmPointT vec) const;
+    CmPointT getRotationToNorm(CmPointT vec) const;
 
 	///
 	/// Rotates this point about an axis (or normalised axis).
@@ -148,6 +145,12 @@ public:
 		a.rotateAboutNorm(axis, angle);
 		return a;
 	}
+    
+    /// There are infinite possible orthogonal vectors, this finds one of them
+    CmPointT getOrthVecNorm() const;
+    
+    void rotateAboutOrthVec(T angle);
+    CmPointT getRotatedAboutOrthVec(T angle) const;
 
 	///
 	/// Operators for use in non-member wrappers - named to avoid
@@ -226,7 +229,3 @@ inline const CmPoint64f operator^ (const CmPoint64f& lhs, const CmPoint64f& rhs)
 	{ return lhs.crs(rhs); }
 inline const CmPoint64f operator- (const CmPoint64f& p)
 	{ return CmPoint64f(-p.x, -p.y, -p.z); }
-
-
-
-#endif // _CM_POINT_H

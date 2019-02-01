@@ -1,32 +1,19 @@
-///
-/// Saul Thurrowgood, 2008.
-///
+/// FicTrac http://rjdmoore.net/fictrac/
+/// \file       CameraRemap.h
+/// \brief      Base class for remapping images.
+/// \author     Saul Thurrowgood
+/// \copyright  CC BY-NC-SA 3.0
 
-/*#####################################################################
-# This work is licensed under the Creative Commons                    #
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.          #
-# To view a copy of this license, visit                               #
-# http://creativecommons.org/licenses/by-nc-sa/3.0/                   #
-#                                                                     #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY           #
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          #
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR             #
-# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR       #
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     #
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE      #
-# USE OR OTHER DEALINGS IN THE SOFTWARE.                              #
-#####################################################################*/
+#pragma once
 
-#ifndef _REMAPPER_H
-#define _REMAPPER_H 1
 
+#include "SharedPointers.h"
 
 #include <opencv2/opencv.hpp>
-#include "SharedPointers.h"
-SHARED_PTR(CameraModel);
 
 #include <cstdio>
+
+SHARED_PTR(CameraModel);
 
 
 ///
@@ -123,6 +110,3 @@ protected:
 	int _srcW, _srcH;
 	int _dstW, _dstH;
 };
-
-
-#endif // _REMAPPER_H

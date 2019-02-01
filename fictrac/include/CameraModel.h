@@ -1,41 +1,18 @@
-///
-/// Saul Thurrowgood, 2008.
-///
+/// FicTrac http://rjdmoore.net/fictrac/
+/// \file       CameraModel.h
+/// \brief      Parent class for converting between pixel coords and view vectors.
+/// \author     Saul Thurrowgood
+/// \copyright  CC BY-NC-SA 3.0
 
-/*#####################################################################
-# This work is licensed under the Creative Commons                    #
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.          #
-# To view a copy of this license, visit                               #
-# http://creativecommons.org/licenses/by-nc-sa/3.0/                   #
-#                                                                     #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY           #
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          #
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR             #
-# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR       #
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     #
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE      #
-# USE OR OTHER DEALINGS IN THE SOFTWARE.                              #
-#####################################################################*/
+#pragma once
 
-#ifndef _CAMERA_MODEL_H
-#define _CAMERA_MODEL_H 1
+#include "typesvars.h"
+#include "SharedPointers.h"
 
-
-#include "CmPoint.h"
 #include <opencv2/opencv.hpp>
 
-#include "SharedPointers.h"
 SHARED_PTR(CameraModel);
-#include <boost/enable_shared_from_this.hpp>
 
-typedef double CmReal;
-typedef CmPointT<CmReal> CmPoint;
-
-const CmReal CM_PI   = 3.14159265358979323846;
-const CmReal CM_PI_2 = 1.57079632679489661923;
-const CmReal CM_R2D  = 180.0 / CM_PI;
-const CmReal CM_D2R  = CM_PI / 180.0;
 
 ///
 /// Basic camera model methods to convert between pixel coordinates
@@ -47,10 +24,10 @@ const CmReal CM_D2R  = CM_PI / 180.0;
 /// Axes:  X-right  Y-down  Z-forward
 ///
 class CameraModel
-	: public boost::enable_shared_from_this<CameraModel>
+	: public std::enable_shared_from_this<CameraModel>
 {
 public:
-	typedef boost::shared_ptr<CameraModel> Ptr;
+	typedef std::shared_ptr<CameraModel> Ptr;
 
 	///
 	/// Must be virtual to allow proper subclass destruction.
@@ -182,7 +159,7 @@ public:
 	static void continuousToIndex(
 		CmReal& cx, CmReal& cy, int& ix, int& iy)
 	{
-		ix = cx - (CmReal)0.5;  iy = cy - (CmReal)0.5;
+		ix = static_cast<int>(cx - (CmReal)0.5);  iy = static_cast<int>(cy - (CmReal)0.5);
 	}
 	static void continuousToIndex(
 		CmReal& cx, CmReal& cy, CmReal& ix, CmReal& iy)
@@ -232,11 +209,9 @@ public:
 protected:
 	int _width, _height;
 
-	CameraModel(int width, int height);
+	CameraModel(int width, int height) : _width(width), _height(height) {}
 
 	bool _validXY(CmReal x, CmReal y) const {
 		return !((x < 0) || (x > _width) || (y < 0) || (y > _height));
 	}
 };
-
-#endif // _CAMERA_MODEL_H

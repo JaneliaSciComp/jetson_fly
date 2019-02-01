@@ -1,28 +1,13 @@
-///
-/// Saul Thurrowgood, Nov 2010.
-///
+/// FicTrac http://rjdmoore.net/fictrac/
+/// \file       NLoptFunc.h
+/// \brief      Wrapper class for NLopt.
+/// \author     Saul Thurrowgood, Richard Moore
+/// \copyright  CC BY-NC-SA 3.0
 
-/*#####################################################################
-# This work is licensed under the Creative Commons                    #
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.          #
-# To view a copy of this license, visit                               #
-# http://creativecommons.org/licenses/by-nc-sa/3.0/                   #
-#                                                                     #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY           #
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          #
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR             #
-# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR       #
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     #
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE      #
-# USE OR OTHER DEALINGS IN THE SOFTWARE.                              #
-#####################################################################*/
-
-#ifndef _NL_OPT_FUNC_H
-#define _NL_OPT_FUNC_H
-
+#pragma once
 
 #include <nlopt.h>
+
 #include <vector>
 
 
@@ -66,6 +51,8 @@ public:
 	///
 	void init(nlopt_algorithm algo, unsigned n, bool minimise=true);
 
+    void setPopulation(unsigned int pop);
+
 	///
 	/// Set initial step size.
 	///
@@ -78,8 +65,9 @@ public:
 	void setUpperBounds(const double *ub);
 	void setLowerBounds(double lb); /// convenience: sets all to same value
 	void setUpperBounds(double ub);
-	void setFtol(double tol);
-	void setXtol(double tol);
+	void setFtol(double tol);   // relative
+	void setXtol(double tol);   // absolute
+    void setXtolRel(double tol);
 	void setMaxEval(unsigned n);
 
 	void getLowerBounds(double *lb);
@@ -104,7 +92,3 @@ private:
 	std::vector<double> _x;
 	double _optF;
 };
-
-
-#endif // _NL_OPT_FUNC_H
-

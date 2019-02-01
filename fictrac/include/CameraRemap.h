@@ -1,38 +1,20 @@
-///
-/// Saul Thurrowgood, 2008.
-///
+/// FicTrac http://rjdmoore.net/fictrac/
+/// \file       CameraRemap.h
+/// \brief      Remap from one camera model to another.
+/// \author     Saul Thurrowgood
+/// \copyright  CC BY-NC-SA 3.0
 
-/*#####################################################################
-# This work is licensed under the Creative Commons                    #
-# Attribution-NonCommercial-ShareAlike 3.0 Unported License.          #
-# To view a copy of this license, visit                               #
-# http://creativecommons.org/licenses/by-nc-sa/3.0/                   #
-#                                                                     #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY           #
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          #
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR             #
-# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR       #
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     #
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE      #
-# USE OR OTHER DEALINGS IN THE SOFTWARE.                              #
-#####################################################################*/
-
-///	TODO: implement per-pixel mip-map versions of the apply() methods,
-///	      perhaps as a mode e.g. setMipmapMode(bool enable), using ratio:
-///	      dstCameraModel.anglePerPixel(x,y) / srcCameraModel.anglePerPixel(x,y)
-///	      -> similar to OpenCV resize function using option CV_INTER_AREA.
-
-#ifndef _CAMERA_REMAP_H
-#define _CAMERA_REMAP_H 1
+#pragma once
 
 
 #include "CameraModel.h"
-#include "CmPoint.h"
+#include "typesvars.h"
 #include "Remapper.h"
-#include <vector>
 #include "SharedPointers.h"
-SHARED_PTR(CameraModel);
+
+#include <vector>
+
+SHARED_PTR(CameraRemap);
 SHARED_PTR(RemapTransform);
 
 
@@ -127,8 +109,3 @@ private:
 	MatrixRemapTransform() {}
 	CmReal _m[9];
 };
-
-
-
-#endif // _CAMERA_REMAP_H
-

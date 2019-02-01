@@ -1,42 +1,152 @@
-# FicTrac - Dickinson Lab Build
+<div align="left">
+  <img src="http://rjdmoore.net/fictrac/header_text.jpg"><br><br>
+</div>
 
-Note: this is a custom experimental version of FicTrac sortware which has been
-modified for use in the Dickinson Lab. For the official version of the FicTrac
-software please see the [FicTrac website](http://rjdmoore.net/fictrac/). 
+**FicTrac** is an open-source software library for reconstructing the fictive path of an animal walking on a patterned sphere. The software is fast, flexible, easy to use, and simplifies the setup of closed-loop tracking experiments.
 
-## About Fictrac
+FicTrac was originally developed by researchers at the [Queensland Brain Institute](http://qbi.uq.edu.au/) at the University of Queensland, Australia for tracking honeybees and fruit flies during closed-loop tethered walking experiments, but it has since proved useful for tracking a wide range of animals with different movement speeds, track ball diameters and patterns, and stimuli.
 
-FicTrac is a lightweight program that computes the absolute orientation and 3D
-rotation of a patterned sphere from video captured directly from an attached
-Firewire or USB camera (or loaded from file for offline use).
+On this page you'll find information for:
+* [Getting started](#getting-started) - including [hardware requirements](#hardware-requirements), and basic steps for [installing](#installation), [configuring](#configuration), and [running FicTrac](#running-fictrac).
+* [Research](#research) - including works to cite and links to the original FicTrac publication and preprint (pdf).
+* [Contributing](#contribution-guidelines) - how to go about making your fixes, additions, and customisations available for other users.
+* [Re-use](#license) - licensing information, if you plan on using FicTrac or the source code.
 
-FicTrac was originally created by [Dr. Richard
-Moore](http://rjdmoore.net/fictrac/mail.html)  and colleagues at the Queensland
-Brain Institute, University of Queensland, Australia, and is actively improved
-and maintained. If you are interested in FicTrac or currently use the software,
-please consider signing up to the [mailing
-list](http://rjdmoore.net/fictrac/mail.html) for version updates, bug reports,
-and other useful information.
+You might also be interested in the following links:
+* [Demo video](http://youtu.be/BeGYOEOdWjw) - Quick (30s) overview of what FicTrac does and how it works.
+* [FicTrac manual](doc/requirements.md) - Detailed instructions, description of output data, parameters, recommendations, etc.
+* [Homepage](http://fictrac.rjdmoore.net) - Contact details for the main author/developer, links, and further info.
+* [Forum](http://www.reddit.com/r/fictrac/) - Subreddit for faqs, support, advice, discussions, etc.
+* [Mailing list](http://fictrac.rjdmoore.net/mail.html) - Subscribe to receive important announcements and updates.
+
+Happy tracking!
+
+## Getting started
+
+If you're just setting up your lab, or wondering whether FicTrac is suitable for your setup (spoiler: yes, probably), check the [hardware requirements section below](#hardware-requirements) for the basic requirements.
+
+If you already have an experimental enclosure with a camera, you can use FicTrac to either process recorded videos offline or to run live from the camera. Skip ahead to [install](#installation), [configure](#configuration), and [run FicTrac](#running-fictrac).
+
+### Hardware requirements
+
+Very briefly, FicTrac imposes almost no special requirements on your experimental setup, other than that a pattern must be applied to the track ball. However, there are a number of tips that can help you get the best results from using FicTrac.
+
+A typical FicTrac experimental setup might include at least the following equipment:
+* *Animal tether/harness* - for keeping the animal stationary on the track ball
+* *Stimulus* - sensory feedback for the animal
+* *Track ball support* - structure to hold track ball in place whilst allowing free rotation
+* [Track ball](doc/requirements.md#track-ball) - lightweight sphere that is rotated by the animal's walking/turning motions. Surface pattern should ideally be high-contrast, non-repeating, non-reflective (not glossy), and contain around 10~50 variously sized blobby shapes.
+* [Video camera](doc/requirements.md#video-camera) - for monitoring the track ball (and animal). Resolution is not important, and for vertebrates a USB webcam is likely sufficient. For faster moving insects, the camera should support frame rates >100 Hz. In all cases, the frame rate, exposure, and lens should be chosen to ensure the track ball pattern is well-exposed under all lighting/stimulus conditions and that there is no motion blur during the fastest expected movements. At least one half of one hemisphere of the track ball surface should be visible by the camera.
+* [PC/laptop](doc/requirements.md#pclaptop) - for running FicTrac software (and generating closed-loop stimuli). Processor should be somewhat recent (>2 GHz, multi-core).
+* [Lighting](doc/requirements.md#lighting) - ambient lighting should be diffuse (no specular reflections from track ball surface) and bright enough to give good track ball surface exposure at chosen frame rate.
+
+FicTrac imposes no requirements on the *italicised* items; how you design these is completely dependent on other factors.
+
+### Installation
+
+The FicTrac source code can be built for both Windows and Ubuntu (Linux) operating systems. You can even build and run FicTrac from within a [virtual machine](https://www.virtualbox.org/) on any operating system.
+
+**Note:** If you plan on using a USB3 camera, FicTrac may have issues using the OpenCV capture interface. The work around is to tell FicTrac to use the SDK provided with your camera instead of OpenCV to do the frame grabbing. See [USB3 camera installation](#usb3-camera-installation).
+
+#### Windows installation
+
+1. Download and install required dependencies:
+    1. [Cmake build system](https://cmake.org/download/) (binary distribution)
+    2. [OpenCV computer vision library](https://opencv.org/releases.html) (version 3.4.2 Win pack)
+    3. [NLopt optimisation library](https://nlopt.readthedocs.io/en/latest/NLopt_on_Windows/) (precompiled DLL)
+2. Clone or download the FicTrac repository, then navigate to that folder, open a terminal, and create a build directory:
+```
+mkdir build
+cd build
+```
+3. Next, we will configure and build the FicTrac project. FicTrac is written in C++, so you'll need a suitable compiler. In this example we will use MSVS Build Tools. If you don't already have Visual Studio, you will need to install the [build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017).
+4. Run Cmake to prepare the necessary build files for FicTrac. Here we also need to provide the paths to where we installed OpenCV and NLopt (I have given example paths here, you will need to modify them for your installation):
+```
+cmake -G "Visual Studio 15 2017 Win64" -D OPENCV_DIR="C:\path\to\opencv-3.4.2\build" -D NLOPT_DIR="C:\path\to\nlopt-2.4.2\" ..
+```
+5. Finally, build and install FicTrac:
+```
+cmake --build . --config Release -j 4
+```
+
+If everything went well, the executables for FicTrac and a configuration utility will be placed under the `bin` directory in the FicTrac project folder.
+
+**Note:** To save video on Windows, you must also have the [H264 library](https://github.com/cisco/openh264/releases) in the system path. OpenCV 3.4.2 requires `openh264-1.7.0-win64.dll`, which should be downloaded and placed in the same directory as the generated `fictrac.exe`. If you have installed another version of OpenCV, and it requires another version of the H264 library, an error message should be printed to the terminal when you run FicTrac. You can obtain other H264 versions from the above link.
+
+#### Ubuntu (Linux) installation
+
+1. Install the required dependencies:
+```
+sudo apt-get install gcc cmake libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk-3-dev libdc1394-22-dev libopencv-dev libnlopt-dev
+```
+2. Clone or download the FicTrac repository, then navigate to that folder and create a build directory:
+```
+mkdir build
+cd build
+```
+3. Run Cmake to prepare the necessary build files for FicTrac (if OpenCV and NLopt are not installed in the default location, you can help Cmake find them by defining OPENCV_DIR and NLOPT_DIR - see [Windows installation](#windows-installation) for an example):
+```
+cmake ..
+```
+4. Finally, build and install FicTrac:
+```
+cmake --build . --config Release -- -j 4
+```
+
+If everything went well, the executables for FicTrac and a configuration utility will be placed under the `bin` directory in the FicTrac project folder.
+
+#### USB3 camera installation
+
+If you are using a USB3 camera and are receiving error messages when FicTrac tries to connect to your camera, you may need to tell FicTrac to use the SDK provided with your camera, rather than the generic OpenCV interface. The instructions for switching to the camera's SDK are different for each manufacturer. Currently there is support for PGR (FLIR) USB3 cameras via the Spinnaker SDK.
+
+##### PGR (FLIR) Spinnaker SDK
+
+1. Download and install the Spinnaker SDK from [PGR downloads page](https://www.ptgrey.com/support/downloads).
+2. When preparing the build files for FicTrac using Cmake, you will need to specify to use Spinnaker using the switch `-D PGR_USB3=ON` and depending on where you installed the SDK, you may also need to provide the SDK directory path using the switch `-D PGR_DIR=...`. For example, for a [Windows installation](#windows-installation) you would replace step 4 with:
+```
+cmake -G "Visual Studio 15 2017 Win64" -D OPENCV_DIR="C:\path\to\opencv-3.4.2\build" -D NLOPT_DIR="C:\path\to\nlopt-2.4.2\" -D PGR_USB3=ON -D PGR_DIR="C:\path\to\Spinnaker" ..
+```
+3. Follow the other build steps for either [Windows](#windows-installation) or [Ubuntu (Linux)](#ubuntu-linux-installation) as normal.
+
+Before running FicTrac, you may configure your camera (frame rate, resolution, etc) as desired using the SDK utilities.
+
+### Configuration
+
+There are two necessary steps to configure FicTrac prior to running the program:
+1. You must provide a text file that contains important [configuration parameters](doc/params.md) for your setup. At a minimum, this config file must define the parameters `src_fn` and `vfov`, which define the image source (path to video file or camera index) and vertical field of view (in degrees) of your camera respectively. You will find an example config file in the `sample` directory.
+2. You must run the interactive configuration program (configGui). This program will guide you through the configuration of the track ball region of interest within your input images and the transformation between the camera's and animal's frames of reference.
+
+A more [detailed guide](doc/requirements.md) on how to configure FicTrac for your setup and an explanation of all the [configuration parameters](doc/params.md) can be found in the `doc` directory.
+
+### Running FicTrac
+
+To run FicTrac on the provided sample data, simply open a terminal in the FicTrac project folder and type:
+
+```
+cd sample
+[Windows] ..\bin\Release\configGui.exe config.txt
+[Linux] ../bin/configGui config.txt
+```
+The sample config file `config.txt` is already configured for the sample data, but you can step through the configuration process to check that everything looks ok. Then, in the same terminal window, type:
+```
+[Windows] ..\bin\Release\fictrac.exe config.txt
+[Linux] sudo ../bin/fictrac config.txt
+```
+
+## Research
+
+If you use FicTrac as part of your research, please cite the original FicTrac publication:
+
+> RJD Moore, GJ Taylor, AC Paulk, T Pearson, B van Swinderen, MV Srinivasan (2014). *"FicTrac: a visual method for tracking spherical motion and generating fictive animal paths"*, Journal of Neuroscience Methods, Volume 225, 30th March 2014, Pages 106-119. [[J. Neuroscience Methods link]](https://doi.org/10.1016/j.jneumeth.2014.01.010) [[Preprint (pdf) link]](https://www.dropbox.com/s/sw6qcmphk417bgi/2014-Moore_etal-JNM_preprint-FicTrac.pdf?dl=0)
+
+This publication contains technical details on how FicTrac works, performance analysis, results, and other discussion.
+
+## Contribution guidelines
+
+If you have modified the FicTrac source code to fix issues, add functionality, or to better suit your setup, please consider making those additions available to other users!
+
+To do so, just follow the standard [Github fork and pull request workflow](https://gist.github.com/rjdmoore/ed014fba0ee2c7e75060ccd01b726cb8).
 
 ## License
 
-FicTrac is available under a 
-[Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License](https://creativecommons.org/licenses/by-nc-sa/3.0/). 
-Basically, the software is free to download and use as long as you attribute
-the author and don't use it for commercial purposes. If you use this software
-and publish your results, you must cite [Moore et al.,
-2014](http://rjdmoore.net/fictrac/#research).
-
-## Build
-
-Out-of-source build with CMake.  
-
-```bash
-mkdir build
-cd build
-cmake ../
-make
-```
-
-
-
+See the [LICENSE file](LICENSE.txt) for more info.
